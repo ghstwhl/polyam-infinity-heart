@@ -49,8 +49,10 @@ int slowfactor = SLOW_FACTOR;
 bool blinkstatus = true;
 
 void setup() { 
+  pinMode(LED_BUILTIN, OUTPUT);
+
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
-  FastLED.setBrightness(64);
+  // FastLED.setBrightness(128);
   // FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
 
   for (int x=0; x<NUM_LEDS; x++) {
@@ -59,7 +61,6 @@ void setup() {
   }
   FastLED.show();
   
-  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() { 
@@ -76,15 +77,15 @@ void loop() {
     if (heartpulse == 149) {
        heartpulse = 0;
     }
-  if (blinkstatus) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    blinkstatus = false;
+    if (blinkstatus) {
+      digitalWrite(LED_BUILTIN, HIGH);
+      blinkstatus = false;
+    }
+    else {
+      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+      blinkstatus = true;
+    }
   }
-  else {
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    blinkstatus = true;
-  }
-}
 
   // Sweep the loop
   infinitypride();
@@ -100,41 +101,8 @@ void loop() {
 // widely-varying set of parameters.
 void infinitypride() 
 {
-  static uint16_t sPseudotime = 0;
-  static uint16_t sLastMillis = 0;
-  static uint16_t sHue16 = 0;
- 
-  uint8_t sat8 = beatsin88( 87, 220, 250);
-  uint8_t brightdepth = beatsin88( 341, 96, 224);
-  uint16_t brightnessthetainc16 = beatsin88( 203, (25 * 256), (40 * 256));
-  uint8_t msmultiplier = beatsin88(147, 23, 60);
-
-  uint16_t hue16 = sHue16;//gHue * 256;
-  uint16_t hueinc16 = beatsin88(113, 1, 3000);
-  
-  uint16_t ms = millis();
-  uint16_t deltams = ms - sLastMillis ;
-  sLastMillis  = ms;
-  sPseudotime += deltams * msmultiplier;
-  sHue16 += deltams * beatsin88( 400, 5,9);
-  uint16_t brightnesstheta16 = sPseudotime;
-  
-  for( uint16_t i = 0 ; i < INFINITY_LEDS; i++) {
-    hue16 += hueinc16;
-    uint8_t hue8 = hue16 / 256;
-
-    brightnesstheta16  += brightnessthetainc16;
-    uint16_t b16 = sin16( brightnesstheta16  ) + 32768;
-
-    uint16_t bri16 = (uint32_t)((uint32_t)b16 * (uint32_t)b16) / 65536;
-    uint8_t bri8 = (uint32_t)(((uint32_t)bri16) * brightdepth) / 65536;
-    bri8 += (255 - brightdepth);
-    
-    CRGB newcolor = CHSV( hue8, sat8, bri8);
-    
-    uint16_t pixelnumber = i;
-    pixelnumber = (INFINITY_LEDS-1) - pixelnumber;
-    
-    nblend( infinityleds[pixelnumber], newcolor, 64);
-  }
+  static byte initialHue = 0;
+  initialHue = initialHue + 1;
+  byte changeInHue = 255 / INFINITY_LEDS;
+  fill_rainbow(infinityleds, INFINITY_LEDS, initialHue, changeInHue);
 }
