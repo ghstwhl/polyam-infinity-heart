@@ -19,7 +19,7 @@
 // need to define DATA_PIN.  For led chipsets that are SPI based (four wires - data, clock,
 // ground, and power), like the LPD8806 define both DATA_PIN and CLOCK_PIN
 // Clock pin only needed for SPI based chipsets when not using hardware SPI
-#define DATA_PIN 6
+#define DATA_PIN 5
 
 const uint8_t heartECG[] = { 
   231, 200, 151, 102,  54,  18,  15,  25,  34,  44, 
@@ -52,7 +52,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
-  // FastLED.setBrightness(128);
+  FastLED.setBrightness(255);
   // FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
 
   for (int x=0; x<NUM_LEDS; x++) {
